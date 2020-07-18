@@ -1,31 +1,57 @@
-import { TestBed, async } from '@angular/core/testing';
+import { TestBed, async, ComponentFixture } from '@angular/core/testing';
+import { MockStore, provideMockStore } from '@ngrx/store/testing';
+
+import { MaterialModule } from './material/material.module';
+
+import * as fromRoot from './store/app.state';
+import * as statsActions from './store/stats/stats.actions';
+import * as statsSelectors from './store/stats/stats.selectors';
+
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
+  let app: any ;
+  let fixture: ComponentFixture<any>;
+  let store: MockStore<fromRoot.IAppState>;
+  let dispatchSpy: jest.SpyInstance;
+
+  const initialState: fromRoot.IAppState = {};
+
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      imports: [MaterialModule],
       declarations: [
         AppComponent
       ],
+      providers: [provideMockStore({ initialState })]
     }).compileComponents();
   }));
 
   it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
+    fixture = TestBed.createComponent(AppComponent);
+    app = fixture.componentInstance;
+    store = TestBed.inject<MockStore<fromRoot.IAppState>>(MockStore);
+    dispatchSpy = jest.spyOn(store, 'dispatch');
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'simple-staking'`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('simple-staking');
+  describe('ngOnInit()', () => {
+    it('should dispatch an action to get stats', () => {
+      const action = new statsActions.GetStats(1);
+      fixture.detectChanges();
+      expect(dispatchSpy).toHaveBeenCalledWith(action);
+    });
+
+    it('should get stats', done => {
+      store.overrideSelector(statsSelectors.getStats, [1, 2]);
+
+      fixture.detectChanges();
+
+      app.stats$.subscribe(stats => {
+        expect(stats).toEqual([1, 2]);
+        done();
+      });
+    });
   });
 
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement;
-    expect(compiled.querySelector('.content span').textContent).toContain('simple-staking app is running!');
-  });
 });
