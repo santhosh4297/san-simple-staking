@@ -11,8 +11,8 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app w
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
 
 ## Done
-Used Ngrx
-Used Angular Material
+Used Ngrx, 
+Used Angular Material, 
 Unit test cases are written for ngrx store and component.
 
 ## Todo
